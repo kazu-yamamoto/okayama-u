@@ -2,6 +2,7 @@ module Command (Command(..), command) where
 
 import Control.Applicative ((<$>))
 import Control.Exception
+import qualified Control.Exception as E
 import Data.IORef
 import System.Exit (exitSuccess)
 
@@ -10,7 +11,8 @@ import Person
 import Types
 
 command :: IORef [Person] -> Command -> IO Result
-command ref cmd = eval ref cmd `catches` []
+command ref cmd = eval ref cmd `E.catch` \(SomeException e) ->
+    return $ NG (show e)
 
 eval :: IORef [Person] -> Command -> IO Result
 eval _    Quit       = exitSuccess
