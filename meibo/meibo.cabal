@@ -16,6 +16,7 @@ Executable piki
   Main-Is:              Main.hs
   Build-Depends:        base >= 4.0 && < 5
                       , containers
+                      , parsec
   Other-Modules:        Command
 
 Source-Repository head

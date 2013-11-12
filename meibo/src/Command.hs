@@ -7,3 +7,4 @@ data Command = Quit
              | Write FilePath
              | Find String
              | Sort Int
+             deriving (Eq,Show)
