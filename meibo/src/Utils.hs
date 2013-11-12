@@ -39,5 +39,6 @@ split c s = case break (c==) s of
 takeEnd :: Int -> [a] -> [a]
 takeEnd n xs = takeEnd' (drop n xs) xs
   where
+    takeEnd' _      []     = []
     takeEnd' []     zs     = zs
     takeEnd' (_:ys) (_:zs) = takeEnd' ys zs

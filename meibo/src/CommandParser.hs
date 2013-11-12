@@ -1,6 +1,7 @@
 module CommandParser where
 
 import Control.Applicative ((<*>), (<$), (<$>))
+import Control.Monad (void)
 import Text.Parsec
 import Text.Parsec.String (Parser)
 
@@ -33,7 +34,7 @@ parseCommand xs = case parse pCommand "parseCommand" xs of
 
 pCommand :: Parser Command
 pCommand = do
-    char '%'
+    void $ char '%'
     cmd <- pQuit <|> pCheck <|> pPrint <|> pRead <|> pWrite <|> pFind <|> pSort
     ignoreWS
     return cmd

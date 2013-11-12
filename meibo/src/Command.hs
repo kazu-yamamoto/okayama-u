@@ -47,7 +47,7 @@ comPrint ref n = do
     let db' | n == 0    = db
             | n >  0    = take n db
             | otherwise = takeEnd (negate n) db
-    mapM print db'
+    mapM_ print db'
     return OK
 
 comSort :: IORef [Person] -> Int -> IO Result
@@ -68,7 +68,7 @@ comFind :: IORef [Person] -> String -> IO Result
 comFind ref word = do
     db <- readIORef ref
     let db' = filter predicate db
-    mapM print db'
+    mapM_ print db'
     return OK
   where
     predicate psn = word `isInfixOf` personName psn
