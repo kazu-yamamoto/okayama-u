@@ -9,7 +9,7 @@ type CSV = [Entry]
 
 parseCSV :: String -> Either String CSV
 parseCSV xs = case parse csv "parseCSV" xs of
-    Left _  -> Left "error"
+    Left  e -> Left (show e)
     Right r -> Right r
 
 {-

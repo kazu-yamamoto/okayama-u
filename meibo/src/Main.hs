@@ -2,19 +2,20 @@ module Main where
 
 import Control.Applicative ((<$>))
 import System.IO (stdout, hFlush)
+import Data.IORef
 
 import Command
 import CommandParser
 import Types
 
 main :: IO ()
-main = repl
+main = newIORef [] >>= repl
 
-repl :: IO ()
-repl = do
+repl :: IORef [Person] -> IO ()
+repl ref = do
     printPrompt
-    readCommand >>= evalCommand >>= printResult
-    repl
+    readCommand >>= evalCommand ref >>= printResult
+    repl ref
 
 printPrompt :: IO ()
 printPrompt = do
@@ -24,9 +25,9 @@ printPrompt = do
 readCommand :: IO (Either String Command)
 readCommand = parseCommand <$> getLine
 
-evalCommand :: Either String Command -> IO Result
-evalCommand (Right cmd) = command cmd
-evalCommand (Left  err) = return $ NG err
+evalCommand :: IORef [Person] -> Either String Command -> IO Result
+evalCommand ref (Right cmd) = command ref cmd
+evalCommand _   (Left  err) = return $ NG err
 
 printResult :: Result -> IO ()
 printResult OK       = putStrLn "OK" >> hFlush stdout
