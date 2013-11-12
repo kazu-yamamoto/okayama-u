@@ -5,7 +5,7 @@ import Control.Exception
 import qualified Control.Exception as E
 import Data.Function (on)
 import Data.IORef
-import Data.List (sortBy)
+import Data.List (sortBy, isInfixOf)
 import System.Exit (exitSuccess)
 
 import CSVParser
@@ -23,6 +23,7 @@ eval ref (Read file) = comRead ref file
 eval ref Check       = comCheck ref
 eval ref (Print n)   = comPrint ref n
 eval ref (Sort n)    = comSort ref n
+eval ref (Find word) = comFind ref word
 eval _   _           = return $ NG "not implemented"
 
 comRead :: IORef [Person] -> FilePath -> IO Result
@@ -62,3 +63,14 @@ compareEntry 2 = compare `on` personBirthday
 compareEntry 3 = compare `on` personAddress
 compareEntry 4 = compare `on` personMisc
 compareEntry _ = error "no such item"
+
+comFind :: IORef [Person] -> String -> IO Result
+comFind ref word = do
+    db <- readIORef ref
+    let db' = filter predicate db
+    mapM print db'
+    return OK
+  where
+    predicate psn = word `isInfixOf` personName psn
+                 || word `isInfixOf` personAddress psn
+                 || word `isInfixOf` personMisc psn
