@@ -11,6 +11,7 @@ import System.Exit (exitSuccess)
 import CSVParser
 import Person
 import Types
+import Utils
 
 command :: IORef [Person] -> Command -> IO Result
 command ref cmd = eval ref cmd `E.catch` \(SomeException e) ->
@@ -39,13 +40,12 @@ comCheck ref = do
     putStrLn $ show len ++ " entries in DB"
     return OK
 
--- FIXME: 0 and minus
 comPrint :: IORef [Person] -> Int -> IO Result
 comPrint ref n = do
     db <- readIORef ref
     let db' | n == 0    = db
             | n >  0    = take n db
-            | otherwise = error "FIXME"
+            | otherwise = takeEnd (negate n) db
     mapM print db'
     return OK
 
