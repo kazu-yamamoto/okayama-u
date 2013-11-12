@@ -73,9 +73,16 @@ pWord = many1 (noneOf " \t\n")
 -- Right 2
 -- >>> parse num "num" "35"
 -- Right 35
+-- >>> parse num "num" "-35"
+-- Right (-35)
 
 num :: Parser Int
-num = toInt <$> many1 (oneOf ['0'..'9'])
+num = do
+    mm <- optionMaybe $ char '-'
+    n <- toInt <$> many1 (oneOf ['0'..'9'])
+    return $ case mm of
+        Nothing -> n
+        Just _  -> negate n
 
 sp :: Parser ()
 sp = () <$ many1 (char ' ')
