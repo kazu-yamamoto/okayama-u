@@ -3,6 +3,7 @@ module Command (Command(..), command) where
 import Control.Applicative ((<$>))
 import Control.Exception
 import qualified Control.Exception as E
+import Data.Either (lefts, rights)
 import Data.Function (on)
 import Data.IORef
 import Data.List (sortBy, isInfixOf)
@@ -32,8 +33,13 @@ comRead ref file = do
     case parseCSV csv of
         Left err -> return $ NG err
         Right es -> do
-            writeIORef ref $ map fromCSV es
-            return OK
+            let people = map fromCSV es
+                errors = lefts people
+            if errors == [] then do
+                writeIORef ref (rights people)
+                return OK
+              else
+                return $ NG (head errors)
 
 comCheck :: IORef [Person] -> IO Result
 comCheck ref = do
