@@ -25,12 +25,12 @@ import Command
 -- Right (Sort 2)
 
 parseCommand :: String -> Either String Command
-parseCommand xs = case parse command "parseCommand" xs of
+parseCommand xs = case parse pCommand "parseCommand" xs of
     Left _    -> Left "error"
     Right cmd -> Right cmd
 
-command :: Parser Command
-command = do
+pCommand :: Parser Command
+pCommand = do
     char '%'
     cmd <- pQuit <|> pCheck <|> pPrint <|> pRead <|> pWrite <|> pFind <|> pSort
     ignoreWS
