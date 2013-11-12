@@ -8,11 +8,12 @@ Homepage:               http://www.swlab.cs.okayama-u.ac.jp/~nom/lect/p2/
 Synopsis:               Meibo
 Description:            Meibo
 Category:               Application
-Cabal-Version:          >= 1.6
+Cabal-Version:          >= 1.10
 Build-Type:             Simple
 Data-Files:             test/sample.csv
 
 Executable meibo
+  Default-Language:     Haskell2010
   HS-Source-Dirs:       src
   Main-Is:              Main.hs
   GHC-Options:          -Wall
@@ -25,6 +26,15 @@ Executable meibo
                         Person
                         Types
                         Utils
+
+Test-Suite doctest
+  Type:                 exitcode-stdio-1.0
+  Default-Language:     Haskell2010
+  HS-Source-Dirs:       test
+  Ghc-Options:          -threaded -Wall
+  Main-Is:              doctests.hs
+  Build-Depends:        base
+                      , doctest >= 0.9.3
 
 Source-Repository head
   Type:                 git
