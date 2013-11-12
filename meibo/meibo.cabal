@@ -1,0 +1,23 @@
+Name:                   meibo
+Version:                0.0.0
+Author:                 Kazu Yamamoto <kazu@iij.ad.jp>
+Maintainer:             Kazu Yamamoto <kazu@iij.ad.jp>
+License:                BSD3
+License-File:           LICENSE
+Homepage:               http://www.swlab.cs.okayama-u.ac.jp/~nom/lect/p2/
+Synopsis:               Meibo
+Description:            Meibo
+Category:               Application
+Cabal-Version:          >= 1.6
+Build-Type:             Simple
+Data-Files:             test/sample.csv
+Executable piki
+  HS-Source-Dirs:       src
+  Main-Is:              Main.hs
+  Build-Depends:        base >= 4.0 && < 5
+                      , containers
+  Other-Modules:        Command
+
+Source-Repository head
+  Type:                 git
+  Location:             git://github.com/kazu-yamamoto/okayama-u.git
