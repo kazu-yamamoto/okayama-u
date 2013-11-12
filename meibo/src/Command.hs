@@ -57,7 +57,9 @@ comPrint ref n = do
     return OK
 
 comSort :: IORef [Person] -> Int -> IO Result
-comSort ref n = do
+comSort ref n
+  | n >= personEntryNumber = return $ NG $ show n ++ " is too large"
+  | otherwise              = do
     modifyIORef ref (sortBy (compareEntry n))
     return OK
 
@@ -68,7 +70,7 @@ compareEntry 1 = compare `on` personName
 compareEntry 2 = compare `on` personBirthday
 compareEntry 3 = compare `on` personAddress
 compareEntry 4 = compare `on` personMisc
-compareEntry _ = error "no such item"
+compareEntry _ = error "never reached"
 
 comFind :: IORef [Person] -> String -> IO Result
 comFind ref word = do

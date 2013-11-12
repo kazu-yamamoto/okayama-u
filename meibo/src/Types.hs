@@ -17,4 +17,7 @@ data Person = Person {
   , personMisc     :: String
   } deriving (Eq,Show)
 
+personEntryNumber :: Int
+personEntryNumber = 5
+
 data Result = OK | NG String
