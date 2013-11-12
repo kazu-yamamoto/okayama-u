@@ -11,13 +11,19 @@ Category:               Application
 Cabal-Version:          >= 1.6
 Build-Type:             Simple
 Data-Files:             test/sample.csv
-Executable piki
+
+Executable meibo
   HS-Source-Dirs:       src
   Main-Is:              Main.hs
   Build-Depends:        base >= 4.0 && < 5
                       , containers
                       , parsec
-  Other-Modules:        Command
+  Other-Modules:        CSVParser
+                        Command
+                        CommandParser
+                        Person
+                        Types
+                        Utils
 
 Source-Repository head
   Type:                 git
