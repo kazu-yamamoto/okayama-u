@@ -1,9 +1,9 @@
 module CommandParser where
 
-import Text.Parsec
-import Text.Parsec.String
 import Control.Applicative ((<*>), (<$), (<$>))
-import Data.Char
+import Data.Char (chr)
+import Text.Parsec
+import Text.Parsec.String (Parser)
 
 import Command
 
