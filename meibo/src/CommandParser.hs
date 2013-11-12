@@ -1,11 +1,11 @@
 module CommandParser where
 
 import Control.Applicative ((<*>), (<$), (<$>))
-import Data.Char (chr)
 import Text.Parsec
 import Text.Parsec.String (Parser)
 
 import Command
+import Utils
 
 -- |
 --
@@ -74,9 +74,6 @@ pWord = many1 (noneOf " \t\n")
 
 num :: Parser Int
 num = toInt <$> many1 (oneOf ['0'..'9'])
-  where
-    toInt = foldl (\x y -> x * 10 + y) 0 . map toI
-    toI x = ord x - ord '0'
 
 sp :: Parser ()
 sp = () <$ many1 (char ' ')

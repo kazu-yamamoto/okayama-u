@@ -5,6 +5,7 @@ import System.IO (stdout, hFlush)
 
 import Command
 import CommandParser
+import Types
 
 main :: IO ()
 main = repl
@@ -12,10 +13,7 @@ main = repl
 repl :: IO ()
 repl = do
     printPrompt
-    ecmd <- parseCommand <$> getLine
-    case ecmd of
-        Right cmd -> command cmd
-        Left  err -> printError err
+    readCommand >>= evalCommand >>= printResult
     repl
 
 printPrompt :: IO ()
@@ -23,7 +21,13 @@ printPrompt = do
     putStr "> "
     hFlush stdout
 
-printError :: String -> IO ()
-printError err = do
-    putStr err
-    hFlush stdout
+readCommand :: IO (Either String Command)
+readCommand = parseCommand <$> getLine
+
+evalCommand :: Either String Command -> IO Result
+evalCommand (Right cmd) = command cmd
+evalCommand (Left  err) = return $ NG err
+
+printResult :: Result -> IO ()
+printResult OK       = putStrLn "OK" >> hFlush stdout
+printResult (NG err) = putStrLn err  >> hFlush stdout

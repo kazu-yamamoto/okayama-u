@@ -1,10 +1,11 @@
-module CSVParser where
+module CSVParser (parseCSV, Entry, CSV) where
 
 import Control.Applicative ((<*),(*>))
 import Text.Parsec
 import Text.Parsec.String (Parser)
 
-type CSV = [[String]]
+type Entry = [String]
+type CSV = [Entry]
 
 parseCSV :: String -> Either String CSV
 parseCSV xs = case parse csv "parseCSV" xs of

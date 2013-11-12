@@ -1,16 +1,16 @@
-module Command where
+module Command (Command(..), command) where
 
 import System.Exit (exitSuccess)
 
-data Command = Quit
-             | Check
-             | Print Int
-             | Read FilePath
-             | Write FilePath
-             | Find String
-             | Sort Int
-             deriving (Eq,Show)
+import CSVParser
+import Person
+import Types
 
-command :: Command -> IO ()
+command :: Command -> IO Result
 command Quit = exitSuccess
-command _    = undefined
+command (Read file) = do
+    csv <- readFile file
+    case parseCSV csv of
+        Left err -> print err
+        Right es -> print (map fromCSV es)
+    return OK
