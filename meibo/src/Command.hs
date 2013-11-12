@@ -18,6 +18,7 @@ eval :: IORef [Person] -> Command -> IO Result
 eval _    Quit       = exitSuccess
 eval ref (Read file) = comRead ref file
 eval ref Check       = comCheck ref
+eval ref (Print n)   = comPrint ref n
 eval _   _           = return $ NG "not implemented"
 
 comRead :: IORef [Person] -> FilePath -> IO Result
@@ -33,4 +34,10 @@ comCheck :: IORef [Person] -> IO Result
 comCheck ref = do
     len <- length <$> readIORef ref
     putStrLn $ show len ++ " entries in DB"
+    return OK
+
+comPrint :: IORef [Person] -> Int -> IO Result
+comPrint ref n = do
+    db <- readIORef ref
+    mapM print $ take n db
     return OK
