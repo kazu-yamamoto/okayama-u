@@ -36,6 +36,7 @@ comCheck ref = do
     putStrLn $ show len ++ " entries in DB"
     return OK
 
+-- FIXME: 0 and minus
 comPrint :: IORef [Person] -> Int -> IO Result
 comPrint ref n = do
     db <- readIORef ref
