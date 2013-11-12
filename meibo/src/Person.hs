@@ -6,6 +6,7 @@ import Utils
 
 fromCSV :: Entry -> Person
 fromCSV [i,n,b,a,m] = Person (toInt i) n (toBirth b) a m
+fromCSV err         = error $ "fromCSV: " ++ show err
 
 -- |
 --
@@ -13,6 +14,6 @@ fromCSV [i,n,b,a,m] = Person (toInt i) n (toBirth b) a m
 -- (2011,1,13)
 
 toBirth :: String -> (Int,Int,Int)
-toBirth b = (y,m,d)
-  where
-    [y,m,d] = map toInt . split '-' $ b
+toBirth b = case map toInt (split '-' b) of
+    [y,m,d] -> (y,m,d)
+    _       -> error $ "toBirth: " ++ b
