@@ -1,6 +1,6 @@
 module CSVParser (parseCSV, Entry, CSV) where
 
-import Control.Applicative ((<*),(*>))
+import Control.Applicative ((<*),(*>),(<$))
 import Text.Parsec
 import Text.Parsec.String (Parser)
 
@@ -52,8 +52,8 @@ textdata = oneOf (" !" ++ ['#'..'+'] ++ ['-'..'~'])
 comma :: Parser Char
 comma = char ','
 
-crlf :: Parser Char
-crlf = cr *> lf
+crlf :: Parser ()
+crlf = () <$ ((cr >> (return 'd' <|> lf)) <|> lf) -- 'd' is dummy
 
 lf :: Parser Char
 lf = char '\x0a'

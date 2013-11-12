@@ -32,4 +32,3 @@ comCheck ref = do
     len <- length <$> readIORef ref
     putStrLn $ show len ++ " entries in DB"
     return OK
-
