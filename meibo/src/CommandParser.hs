@@ -23,10 +23,12 @@ import Utils
 -- Right (Find "keyword")
 -- >>> parseCommand "%S 2"
 -- Right (Sort 2)
+-- >>> parseCommand "%X"
+-- Left "unknown command"
 
 parseCommand :: String -> Either String Command
 parseCommand xs = case parse pCommand "parseCommand" xs of
-    Left _    -> Left "error"
+    Left _    -> Left "unknown command"
     Right cmd -> Right cmd
 
 pCommand :: Parser Command

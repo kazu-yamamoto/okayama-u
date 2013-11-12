@@ -30,4 +30,4 @@ evalCommand (Left  err) = return $ NG err
 
 printResult :: Result -> IO ()
 printResult OK       = putStrLn "OK" >> hFlush stdout
-printResult (NG err) = putStrLn err  >> hFlush stdout
+printResult (NG err) = putStrLn ("Error: " ++ err)  >> hFlush stdout
