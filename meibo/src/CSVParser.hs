@@ -29,7 +29,7 @@ DQUOTE = %x22
 -}
 
 csv :: Parser [[String]]
-csv = sepBy1 record crlf
+csv = endBy1 record crlf
 
 record :: Parser [String]
 record = sepBy1 field comma
