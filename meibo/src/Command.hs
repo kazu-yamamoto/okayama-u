@@ -2,12 +2,11 @@ module Command (Command(..), command) where
 
 import Control.Applicative ((<$>))
 import Control.Exception
-import qualified Control.Exception as E
 import Data.Either (lefts, rights)
 import Data.Function (on)
 import Data.IORef
 import Data.List (sortBy, isInfixOf, intercalate)
-import System.Exit (exitSuccess)
+import System.Exit (exitSuccess, ExitCode)
 
 import CSVParser
 import Person
@@ -15,8 +14,12 @@ import Types
 import Utils
 
 command :: IORef [Person] -> Command -> IO Result
-command ref cmd = eval ref cmd `E.catch` \(SomeException e) ->
-    return $ NG (show e)
+command ref cmd = eval ref cmd `catches` [Handler ehandler, Handler shandler]
+  where
+    ehandler :: ExitCode -> IO Result
+    ehandler _ = exitSuccess
+    shandler :: SomeException -> IO Result
+    shandler e = return $ NG (show e)
 
 eval :: IORef [Person] -> Command -> IO Result
 eval _    Quit        = exitSuccess
