@@ -6,7 +6,7 @@ import qualified Control.Exception as E
 import Data.Either (lefts, rights)
 import Data.Function (on)
 import Data.IORef
-import Data.List (sortBy, isInfixOf)
+import Data.List (sortBy, isInfixOf, intercalate)
 import System.Exit (exitSuccess)
 
 import CSVParser
@@ -19,13 +19,13 @@ command ref cmd = eval ref cmd `E.catch` \(SomeException e) ->
     return $ NG (show e)
 
 eval :: IORef [Person] -> Command -> IO Result
-eval _    Quit       = exitSuccess
-eval ref (Read file) = comRead ref file
-eval ref Check       = comCheck ref
-eval ref (Print n)   = comPrint ref n
-eval ref (Sort n)    = comSort ref n
-eval ref (Find word) = comFind ref word
-eval _   _           = return $ NG "not implemented"
+eval _    Quit        = exitSuccess
+eval ref (Read file)  = comRead ref file
+eval ref (Write file) = comWrite ref file
+eval ref Check        = comCheck ref
+eval ref (Print n)    = comPrint ref n
+eval ref (Sort n)     = comSort ref n
+eval ref (Find word)  = comFind ref word
 
 comRead :: IORef [Person] -> FilePath -> IO Result
 comRead ref file = do
@@ -40,6 +40,16 @@ comRead ref file = do
                 return OK
               else
                 return $ NG (head errors)
+
+-- FIXME: need to refactoring
+comWrite :: IORef [Person] -> FilePath -> IO Result
+comWrite ref file = do
+    db <- readIORef ref
+    let csv = concatMap (ppEntry.toCSV) db
+    writeFile file csv
+    return OK
+  where
+    ppEntry = intercalate ","
 
 comCheck :: IORef [Person] -> IO Result
 comCheck ref = do
