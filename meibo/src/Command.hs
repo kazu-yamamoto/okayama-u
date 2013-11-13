@@ -45,10 +45,11 @@ comRead ref file = do
 comWrite :: IORef [Person] -> FilePath -> IO Result
 comWrite ref file = do
     db <- readIORef ref
-    let csv = concatMap (ppEntry.toCSV) db
+    let csv = toString $ map (ppEntry.toCSV) db
     writeFile file csv
     return OK
   where
+    toString = foldr (\x y -> x ++ "\n" ++ y) ""
     ppEntry = intercalate ","
 
 comCheck :: IORef [Person] -> IO Result
