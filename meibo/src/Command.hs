@@ -37,7 +37,7 @@ comRead ref file = do
     case parseCSV csv of
         Left err -> return $ NG err
         Right es -> do
-            let ps = map fromCSV es
+            let ps = map fromEntry es
                 errors = lefts ps
                 people = rights ps
                 len = length people
@@ -51,7 +51,7 @@ comRead ref file = do
 comWrite :: IORef [Person] -> FilePath -> IO Result
 comWrite ref file = do
     db <- readIORef ref
-    let csv = map (entryToString.toCSV) db
+    let csv = map (entryToString.toEntry) db
         len = length csv
     withFile file WriteMode $ \hdl ->
         mapM_ (hPutStrLn hdl) csv
