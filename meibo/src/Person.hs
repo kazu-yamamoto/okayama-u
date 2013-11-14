@@ -6,7 +6,7 @@ import Utils
 
 fromCSV :: Entry -> Either String Person
 fromCSV [i,n,b,a,m] = case parseBirth b of
-    Just birth -> Right $ Person (toInt i) n birth a m
+    Just birth -> Right $ Person (read i) n birth a m
     Nothing    -> Left $ "parseBirth: " ++ b
 fromCSV err     = Left $ "fromCSV: " ++ show err
 
@@ -19,7 +19,7 @@ toCSV (Person i n b a m) = [show i, n, ppBirth b, a, m]
 -- Just (2011,1,13)
 
 parseBirth :: String -> Maybe (Int,Int,Int)
-parseBirth b = case map toInt (split '-' b) of
+parseBirth b = case map read (split '-' b) of
     [y,m,d] -> Just (y,m,d)
     _       -> Nothing
 

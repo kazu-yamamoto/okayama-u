@@ -6,7 +6,6 @@ import Text.Parsec
 import Text.Parsec.String (Parser)
 
 import Command
-import Utils
 
 -- |
 --
@@ -80,7 +79,7 @@ pWord = many1 (noneOf " \t\n")
 num :: Parser Int
 num = do
     mm <- optionMaybe $ char '-'
-    n <- toInt <$> many1 (oneOf ['0'..'9'])
+    n <- read <$> many1 (oneOf ['0'..'9'])
     return $ case mm of
         Nothing -> n
         Just _  -> negate n
