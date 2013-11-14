@@ -90,9 +90,8 @@ compareEntry _ = error "never reached"
 
 comFind :: IORef [Person] -> String -> IO Result
 comFind ref word = do
-    db <- readIORef ref
-    let db' = filter predicate db
-    return $ OK $ map show db'
+    db <- filter predicate <$> readIORef ref
+    return $ OK $ map show db
   where
     predicate psn = word `isInfixOf` personName psn
                  || word `isInfixOf` personAddress psn
