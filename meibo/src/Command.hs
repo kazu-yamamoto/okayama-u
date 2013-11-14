@@ -3,9 +3,8 @@ module Command (Command(..), command) where
 import Control.Applicative ((<$>))
 import Control.Exception
 import Data.Either (lefts, rights)
-import Data.Function (on)
 import Data.IORef
-import Data.List (sortBy, isInfixOf, intercalate)
+import Data.List (intercalate)
 import System.Exit (exitSuccess, ExitCode)
 import System.IO (withFile, hPutStrLn, IOMode(..))
 
@@ -83,31 +82,7 @@ comSort ref n
     modifyIORef ref (sortDB n)
     return $ OK ["sorted"]
 
-sortDB :: Int -> DB -> DB
-sortDB n db = newDB (sortEntries entries)
-  where
-    entries = dbEntries db
-    sortEntries = sortBy (compareEntry n)
-
--- FIXME: is N 0-origin?
-compareEntry :: Int-> Person -> Person -> Ordering
-compareEntry 0 = compare `on` personId
-compareEntry 1 = compare `on` personName
-compareEntry 2 = compare `on` personBirthday
-compareEntry 3 = compare `on` personAddress
-compareEntry 4 = compare `on` personMisc
-compareEntry _ = error "never reached"
-
 comFind :: IORef DB -> String -> IO Result
 comFind ref word = do
     entries <- findPeople word <$> readIORef ref
     return $ OK $ map show entries
-
-findPeople :: String -> DB -> [Person]
-findPeople word db = filter predicate entries
-  where
-    entries = dbEntries db
-    predicate entry =
-        word `isInfixOf` personName entry
-     || word `isInfixOf` personAddress entry
-     || word `isInfixOf` personMisc entry
