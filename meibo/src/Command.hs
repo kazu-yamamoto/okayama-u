@@ -7,6 +7,7 @@ import Data.Function (on)
 import Data.IORef
 import Data.List (sortBy, isInfixOf, intercalate)
 import System.Exit (exitSuccess, ExitCode)
+import System.IO (withFile, hPutStrLn, IOMode(..))
 
 import CSVParser
 import Person
@@ -50,13 +51,13 @@ comRead ref file = do
 comWrite :: IORef [Person] -> FilePath -> IO Result
 comWrite ref file = do
     db <- readIORef ref
-    let csv = toString $ map (ppEntry.toCSV) db
+    let csv = map (entryToString.toCSV) db
         len = length csv
-    writeFile file csv
+    withFile file WriteMode $ \hdl ->
+        mapM_ (hPutStrLn hdl) csv
     return $ OK ["wrote " ++ show len ++ " people"]
   where
-    toString = foldr (\x y -> x ++ "\n" ++ y) ""
-    ppEntry = intercalate ","
+    entryToString = intercalate ","
 
 comCheck :: IORef [Person] -> IO Result
 comCheck ref = do
