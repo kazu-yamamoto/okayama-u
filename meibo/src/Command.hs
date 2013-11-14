@@ -91,9 +91,13 @@ compareEntry _ = error "never reached"
 
 comFind :: IORef [Person] -> String -> IO Result
 comFind ref word = do
-    db <- filter predicate <$> readIORef ref
+    db <- findPeople word <$> readIORef ref
     return $ OK $ map show db
+
+findPeople :: String -> [Person] -> [Person]
+findPeople word = filter predicate
   where
-    predicate psn = word `isInfixOf` personName psn
-                 || word `isInfixOf` personAddress psn
-                 || word `isInfixOf` personMisc psn
+    predicate entry =
+        word `isInfixOf` personName entry
+     || word `isInfixOf` personAddress entry
+     || word `isInfixOf` personMisc entry
