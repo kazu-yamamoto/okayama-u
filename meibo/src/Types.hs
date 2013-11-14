@@ -20,4 +20,4 @@ data Person = Person {
 personEntryNumber :: Int
 personEntryNumber = 5
 
-data Result = OK | NG String
+data Result = OK [String] | NG String

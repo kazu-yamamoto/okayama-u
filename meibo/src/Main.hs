@@ -28,5 +28,7 @@ evalCommand ref (Right cmd) = command ref cmd
 evalCommand _   (Left  err) = return $ NG err
 
 printResult :: Result -> IO ()
-printResult OK       = putStrLn "OK"
+printResult (OK ms)  = do
+    mapM_ putStrLn ms
+    putStrLn "OK"
 printResult (NG err) = putStrLn ("Error: " ++ err)

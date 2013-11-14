@@ -36,11 +36,13 @@ comRead ref file = do
     case parseCSV csv of
         Left err -> return $ NG err
         Right es -> do
-            let people = map fromCSV es
-                errors = lefts people
+            let ps = map fromCSV es
+                errors = lefts ps
+                people = rights ps
+                len = length people
             if errors == [] then do
-                writeIORef ref (rights people)
-                return OK
+                writeIORef ref people
+                return $ OK ["read " ++ show len ++ " people"]
               else
                 return $ NG (head errors)
 
@@ -49,8 +51,9 @@ comWrite :: IORef [Person] -> FilePath -> IO Result
 comWrite ref file = do
     db <- readIORef ref
     let csv = toString $ map (ppEntry.toCSV) db
+        len = length csv
     writeFile file csv
-    return OK
+    return $ OK ["wrote " ++ show len ++ " people"]
   where
     toString = foldr (\x y -> x ++ "\n" ++ y) ""
     ppEntry = intercalate ","
@@ -58,8 +61,7 @@ comWrite ref file = do
 comCheck :: IORef [Person] -> IO Result
 comCheck ref = do
     len <- length <$> readIORef ref
-    putStrLn $ show len ++ " entries in DB"
-    return OK
+    return $ OK [show len ++ " entries in DB"]
 
 comPrint :: IORef [Person] -> Int -> IO Result
 comPrint ref n = do
@@ -67,15 +69,14 @@ comPrint ref n = do
     let db' | n == 0    = db
             | n >  0    = take n db
             | otherwise = takeEnd (negate n) db
-    mapM_ print db'
-    return OK
+    return $ OK (map show db')
 
 comSort :: IORef [Person] -> Int -> IO Result
 comSort ref n
   | n >= personEntryNumber = return $ NG $ show n ++ " is too large"
   | otherwise              = do
-    modifyIORef ref (sortBy (compareEntry n))
-    return OK
+    modifyIORef ref $ sortBy (compareEntry n)
+    return $ OK ["sorted"]
 
 -- FIXME: is N 0-origin?
 compareEntry :: Int-> Person -> Person -> Ordering
@@ -90,8 +91,7 @@ comFind :: IORef [Person] -> String -> IO Result
 comFind ref word = do
     db <- readIORef ref
     let db' = filter predicate db
-    mapM_ print db'
-    return OK
+    return $ OK $ map show db'
   where
     predicate psn = word `isInfixOf` personName psn
                  || word `isInfixOf` personAddress psn
