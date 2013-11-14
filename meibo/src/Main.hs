@@ -18,9 +18,7 @@ repl ref = do
     repl ref
 
 printPrompt :: IO ()
-printPrompt = do
-    putStr "> "
-    hFlush stdout
+printPrompt = putStr "> " >> hFlush stdout
 
 readCommand :: IO (Either String Command)
 readCommand = parseCommand <$> getLine
@@ -30,5 +28,5 @@ evalCommand ref (Right cmd) = command ref cmd
 evalCommand _   (Left  err) = return $ NG err
 
 printResult :: Result -> IO ()
-printResult OK       = putStrLn "OK" >> hFlush stdout
-printResult (NG err) = putStrLn ("Error: " ++ err)  >> hFlush stdout
+printResult OK       = putStrLn "OK"
+printResult (NG err) = putStrLn ("Error: " ++ err)
