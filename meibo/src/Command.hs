@@ -1,7 +1,6 @@
 module Command (Command(..), command) where
 
 import Control.Applicative ((<$>))
-import Control.Arrow (second)
 import Control.Exception
 import Data.Either (lefts, rights)
 import Data.Function (on)
@@ -40,18 +39,18 @@ comRead ref file = do
         Right es -> do
             let ps = map fromEntry es
                 errors = lefts ps
-                people = rights ps
-                len = length people
+                entries = rights ps
+                size = length entries
             if errors == [] then do
-                writeIORef ref (len,people)
-                return $ OK ["read " ++ show len ++ " people"]
+                writeIORef ref $ DB size entries
+                return $ OK ["read " ++ show size ++ " people"]
               else
                 return $ NG (head errors)
 
 comWrite :: IORef DB -> FilePath -> IO Result
 comWrite ref file = do
-    (_,db) <- readIORef ref
-    let csv = map (entryToString.toEntry) db
+    entries <- dbEntries <$> readIORef ref
+    let csv = map (entryToString.toEntry) entries
         len = length csv
     withFile file WriteMode $ \hdl ->
         mapM_ (hPutStrLn hdl) csv
@@ -61,25 +60,33 @@ comWrite ref file = do
 
 comCheck :: IORef DB -> IO Result
 comCheck ref = do
-    (len,_) <- readIORef ref
-    return $ OK [show len ++ " entries in DB"]
+    size <- dbSize <$> readIORef ref
+    return $ OK [show size ++ " entries in DB"]
 
 comPrint :: IORef DB -> Int -> IO Result
 comPrint ref n = do
-    db <- handleN . snd <$> readIORef ref
-    return $ OK (map show db)
+    entries <- handleN . dbEntries <$> readIORef ref
+    return $ OK (map show entries)
   where
-    handleN db
-      | n == 0    = db
-      | n >  0    = take n db
-      | otherwise = takeEnd (negate n) db
+    handleN entries
+      | n == 0    = entries
+      | n >  0    = take n entries
+      | otherwise = takeEnd (negate n) entries
 
 comSort :: IORef DB -> Int -> IO Result
 comSort ref n
   | n >= personEntryNumber = return $ NG $ show n ++ " is too large"
   | otherwise              = do
-    modifyIORef ref $ second (sortBy (compareEntry n))
+    modifyIORef ref (sortDB n)
     return $ OK ["sorted"]
+
+sortDB :: Int -> DB -> DB
+sortDB n db = db {
+    dbEntries = sortEntries entries
+  }
+  where
+    entries = dbEntries db
+    sortEntries = sortBy (compareEntry n)
 
 -- FIXME: is N 0-origin?
 compareEntry :: Int-> Person -> Person -> Ordering
@@ -92,12 +99,13 @@ compareEntry _ = error "never reached"
 
 comFind :: IORef DB -> String -> IO Result
 comFind ref word = do
-    db <- findPeople word . snd <$> readIORef ref
-    return $ OK $ map show db
+    entries <- findPeople word <$> readIORef ref
+    return $ OK $ map show entries
 
-findPeople :: String -> [Person] -> [Person]
-findPeople word = filter predicate
+findPeople :: String -> DB -> [Person]
+findPeople word db = filter predicate entries
   where
+    entries = dbEntries db
     predicate entry =
         word `isInfixOf` personName entry
      || word `isInfixOf` personAddress entry

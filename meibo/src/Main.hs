@@ -9,7 +9,7 @@ import CommandParser
 import Types
 
 main :: IO ()
-main = newIORef (0,[]) >>= repl
+main = newIORef defaultDB >>= repl
 
 repl :: IORef DB -> IO ()
 repl ref = do
