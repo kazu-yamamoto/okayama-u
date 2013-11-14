@@ -47,7 +47,6 @@ comRead ref file = do
               else
                 return $ NG (head errors)
 
--- FIXME: need to refactoring
 comWrite :: IORef [Person] -> FilePath -> IO Result
 comWrite ref file = do
     db <- readIORef ref
@@ -66,11 +65,13 @@ comCheck ref = do
 
 comPrint :: IORef [Person] -> Int -> IO Result
 comPrint ref n = do
-    db <- readIORef ref
-    let db' | n == 0    = db
-            | n >  0    = take n db
-            | otherwise = takeEnd (negate n) db
-    return $ OK (map show db')
+    db <- handleN <$> readIORef ref
+    return $ OK (map show db)
+  where
+    handleN db
+      | n == 0    = db
+      | n >  0    = take n db
+      | otherwise = takeEnd (negate n) db
 
 comSort :: IORef [Person] -> Int -> IO Result
 comSort ref n
