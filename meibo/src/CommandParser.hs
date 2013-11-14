@@ -82,11 +82,9 @@ pWord = many1 (noneOf " \t\n")
 
 num :: Parser Int
 num = do
-    mm <- optionMaybe $ char '-'
+    func <- option id (negate <$ char '-')
     n <- read <$> many1 (oneOf ['0'..'9'])
-    return $ case mm of
-        Nothing -> n
-        Just _  -> negate n
+    return $ func n
 
 sp :: Parser ()
 sp = () <$ many1 (char ' ')
