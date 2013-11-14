@@ -10,6 +10,7 @@ import System.Exit (exitSuccess, ExitCode)
 import System.IO (withFile, hPutStrLn, IOMode(..))
 
 import CSVParser
+import DB
 import Person
 import Types
 import Utils
@@ -40,21 +41,23 @@ comRead ref file = do
             let ps = map fromEntry es
                 errors = lefts ps
                 entries = rights ps
-                size = length entries
             if errors == [] then do
-                writeIORef ref $ DB size entries
+                let db = newDB entries
+                    size = dbSize db
+                writeIORef ref db
                 return $ OK ["read " ++ show size ++ " people"]
               else
                 return $ NG (head errors)
 
 comWrite :: IORef DB -> FilePath -> IO Result
 comWrite ref file = do
-    entries <- dbEntries <$> readIORef ref
-    let csv = map (entryToString.toEntry) entries
-        len = length csv
+    db <- readIORef ref
+    let entries = dbEntries db
+        size = dbSize db
+        csv = map (entryToString.toEntry) entries
     withFile file WriteMode $ \hdl ->
         mapM_ (hPutStrLn hdl) csv
-    return $ OK ["wrote " ++ show len ++ " people"]
+    return $ OK ["wrote " ++ show size ++ " people"]
   where
     entryToString = intercalate ","
 
@@ -81,9 +84,7 @@ comSort ref n
     return $ OK ["sorted"]
 
 sortDB :: Int -> DB -> DB
-sortDB n db = db {
-    dbEntries = sortEntries entries
-  }
+sortDB n db = newDB (sortEntries entries)
   where
     entries = dbEntries db
     sortEntries = sortBy (compareEntry n)

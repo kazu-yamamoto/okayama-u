@@ -23,11 +23,3 @@ personEntryNumber = 5
 data Result = OK [String] | NG String
 
 type ParserError = String
-
-data DB = DB {
-    dbSize :: Int
-  , dbEntries :: [Person]
-  }
-
-defaultDB :: DB
-defaultDB = DB 0 []
