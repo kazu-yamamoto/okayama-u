@@ -9,9 +9,9 @@ import CommandParser
 import Types
 
 main :: IO ()
-main = newIORef [] >>= repl
+main = newIORef (0,[]) >>= repl
 
-repl :: IORef [Person] -> IO ()
+repl :: IORef DB -> IO ()
 repl ref = do
     printPrompt
     readCommand >>= evalCommand ref >>= printResult
@@ -23,7 +23,7 @@ printPrompt = putStr "> " >> hFlush stdout
 readCommand :: IO (Either ParserError Command)
 readCommand = parseCommand <$> getLine
 
-evalCommand :: IORef [Person]
+evalCommand :: IORef DB
             -> Either ParserError Command
             -> IO Result
 evalCommand ref (Right cmd) = command ref cmd

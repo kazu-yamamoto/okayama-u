@@ -1,6 +1,7 @@
 module Command (Command(..), command) where
 
 import Control.Applicative ((<$>))
+import Control.Arrow (second)
 import Control.Exception
 import Data.Either (lefts, rights)
 import Data.Function (on)
@@ -14,7 +15,7 @@ import Person
 import Types
 import Utils
 
-command :: IORef [Person] -> Command -> IO Result
+command :: IORef DB -> Command -> IO Result
 command ref cmd = eval ref cmd `catches` [Handler ehandler, Handler shandler]
   where
     ehandler :: ExitCode -> IO Result
@@ -22,7 +23,7 @@ command ref cmd = eval ref cmd `catches` [Handler ehandler, Handler shandler]
     shandler :: SomeException -> IO Result
     shandler e = return $ NG (show e)
 
-eval :: IORef [Person] -> Command -> IO Result
+eval :: IORef DB -> Command -> IO Result
 eval _    Quit        = exitSuccess
 eval ref (Read file)  = comRead ref file
 eval ref (Write file) = comWrite ref file
@@ -31,7 +32,7 @@ eval ref (Print n)    = comPrint ref n
 eval ref (Sort n)     = comSort ref n
 eval ref (Find word)  = comFind ref word
 
-comRead :: IORef [Person] -> FilePath -> IO Result
+comRead :: IORef DB -> FilePath -> IO Result
 comRead ref file = do
     csv <- readFile file
     case parseCSV csv of
@@ -42,14 +43,14 @@ comRead ref file = do
                 people = rights ps
                 len = length people
             if errors == [] then do
-                writeIORef ref people
+                writeIORef ref (len,people)
                 return $ OK ["read " ++ show len ++ " people"]
               else
                 return $ NG (head errors)
 
-comWrite :: IORef [Person] -> FilePath -> IO Result
+comWrite :: IORef DB -> FilePath -> IO Result
 comWrite ref file = do
-    db <- readIORef ref
+    (_,db) <- readIORef ref
     let csv = map (entryToString.toEntry) db
         len = length csv
     withFile file WriteMode $ \hdl ->
@@ -58,14 +59,14 @@ comWrite ref file = do
   where
     entryToString = intercalate ","
 
-comCheck :: IORef [Person] -> IO Result
+comCheck :: IORef DB -> IO Result
 comCheck ref = do
-    len <- length <$> readIORef ref
+    (len,_) <- readIORef ref
     return $ OK [show len ++ " entries in DB"]
 
-comPrint :: IORef [Person] -> Int -> IO Result
+comPrint :: IORef DB -> Int -> IO Result
 comPrint ref n = do
-    db <- handleN <$> readIORef ref
+    db <- handleN . snd <$> readIORef ref
     return $ OK (map show db)
   where
     handleN db
@@ -73,11 +74,11 @@ comPrint ref n = do
       | n >  0    = take n db
       | otherwise = takeEnd (negate n) db
 
-comSort :: IORef [Person] -> Int -> IO Result
+comSort :: IORef DB -> Int -> IO Result
 comSort ref n
   | n >= personEntryNumber = return $ NG $ show n ++ " is too large"
   | otherwise              = do
-    modifyIORef ref $ sortBy (compareEntry n)
+    modifyIORef ref $ second (sortBy (compareEntry n))
     return $ OK ["sorted"]
 
 -- FIXME: is N 0-origin?
@@ -89,9 +90,9 @@ compareEntry 3 = compare `on` personAddress
 compareEntry 4 = compare `on` personMisc
 compareEntry _ = error "never reached"
 
-comFind :: IORef [Person] -> String -> IO Result
+comFind :: IORef DB -> String -> IO Result
 comFind ref word = do
-    db <- findPeople word <$> readIORef ref
+    db <- findPeople word . snd <$> readIORef ref
     return $ OK $ map show db
 
 findPeople :: String -> [Person] -> [Person]

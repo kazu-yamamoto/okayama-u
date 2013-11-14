@@ -23,3 +23,5 @@ personEntryNumber = 5
 data Result = OK [String] | NG String
 
 type ParserError = String
+
+type DB = (Int, [Person])
