@@ -31,4 +31,6 @@ printResult :: Result -> IO ()
 printResult (OK ms)  = do
     mapM_ putStrLn ms
     putStrLn "OK"
-printResult (NG err) = putStrLn ("Error: " ++ err)
+printResult (NG err) = do
+    putStrLn $ "Error: " ++ err
+    putStrLn "NG"
