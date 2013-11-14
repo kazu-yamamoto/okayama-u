@@ -20,10 +20,12 @@ repl ref = do
 printPrompt :: IO ()
 printPrompt = putStr "> " >> hFlush stdout
 
-readCommand :: IO (Either String Command)
+readCommand :: IO (Either ParserError Command)
 readCommand = parseCommand <$> getLine
 
-evalCommand :: IORef [Person] -> Either String Command -> IO Result
+evalCommand :: IORef [Person]
+            -> Either ParserError Command
+            -> IO Result
 evalCommand ref (Right cmd) = command ref cmd
 evalCommand _   (Left  err) = return $ NG err
 

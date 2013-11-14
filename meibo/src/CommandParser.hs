@@ -5,6 +5,7 @@ import Text.Parsec
 import Text.Parsec.String (Parser)
 
 import Command
+import Types
 
 -- |
 --
@@ -25,7 +26,7 @@ import Command
 -- >>> parseCommand "%X"
 -- Left "unknown command"
 
-parseCommand :: String -> Either String Command
+parseCommand :: String -> Either ParserError Command
 parseCommand xs = case parse pCommand "parseCommand" xs of
     Left _    -> Left "unknown command"
     Right cmd -> Right cmd
