@@ -35,13 +35,15 @@ pCommand :: Parser Command
 pCommand = char '%' *> pCmds <* ignoreWS
 
 pCmds :: Parser Command
-pCmds = pQuit
-    <|> pCheck
-    <|> pPrint
-    <|> pRead
-    <|> pWrite
-    <|> pFind
-    <|> pSort
+pCmds = choice [
+    pQuit
+  , pCheck
+  , pPrint
+  , pRead
+  , pWrite
+  , pFind
+  , pSort
+  ]
 
 pQuit :: Parser Command
 pQuit = Quit <$ char 'Q'
